@@ -66,3 +66,4 @@ DML = Keyword.DML
 DDL = Keyword.DDL
 CTE = Keyword.CTE
 Command = Keyword.Command
+Builtin = Name.Builtin

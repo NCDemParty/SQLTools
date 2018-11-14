@@ -2,11 +2,10 @@ import os
 import signal
 import subprocess
 import time
-import logging
 
 from threading import Thread, Timer
+from .Log import Log
 
-logger = logging.getLogger(__name__)
 
 class Command(object):
     timeout = 15
@@ -176,9 +175,8 @@ class ThreadCommand(Command, Thread):
             os.kill(self.process.pid, sig)
             self.process = None
 
-            logger.info("command execution exceeded timeout (%s s), process killed", self.timeout)
-            self.callback("Command execution time exceeded 'thread_timeout' ({0} s).\nProcess killed!\n\n"
-                          .format(self.timeout))
+            Log("Your command is taking too long to run. Process killed")
+            self.callback("Command execution time exceeded 'thread_timeout'.\nProcess killed!\n\n")
         except Exception:
             pass
 

@@ -1,13 +1,11 @@
 import shutil
 import shlex
 import codecs
-import logging
 import sqlparse
 
+from .Log import Log
 from . import Utils as U
 from . import Command as C
-
-logger = logging.getLogger(__name__)
 
 
 def _encoding_exists(enc):
@@ -19,8 +17,8 @@ def _encoding_exists(enc):
 
 
 class Connection(object):
-    DB_CLI_NOT_FOUND_MESSAGE = """DB CLI '{0}' could not be found.
-Please set the path to DB CLI '{0}' binary in your SQLTools settings before continuing.
+    DB_CLI_NOT_FOUND_MESSAGE = """'{0}' could not be found.
+Please set the path to '{0}' binary in your SQLTools settings before continuing.
 Example of "cli" section in SQLTools.sublime-settings:
     /* ...  (note the use of forward slashes) */
     "cli" : {{
@@ -74,7 +72,7 @@ You might need to restart the editor for settings to be refreshed."""
 
         cli_path = shutil.which(self.cli)
         if cli_path is None:
-            logger.info(self.DB_CLI_NOT_FOUND_MESSAGE.format(self.cli))
+            Log(self.DB_CLI_NOT_FOUND_MESSAGE.format(self.cli))
             raise FileNotFoundError(self.DB_CLI_NOT_FOUND_MESSAGE.format(self.cli))
 
     def __str__(self):
@@ -209,7 +207,7 @@ You might need to restart the editor for settings to be refreshed."""
         args = self.buildArgs(queryName)
         env = self.buildEnv()
 
-        logger.debug("Query: %s", str(queryToRun))
+        Log("Query: " + str(queryToRun))
 
         self.Command.createAndRun(args=args,
                                   env=env,
@@ -299,7 +297,7 @@ You might need to restart the editor for settings to be refreshed."""
         mainArgs = mainArgs.format(**self.options)
         args = args + shlex.split(mainArgs)
 
-        logger.debug('CLI args (%s): %s', str(queryName), ' '.join(args))
+        Log('Using cli args ' + ' '.join(args))
         return args
 
     def buildEnv(self):
@@ -324,7 +322,7 @@ You might need to restart the editor for settings to be refreshed."""
                     if formattedValue:
                         env.update({var: formattedValue})
 
-        logger.debug('CLI environment: %s', str(env))
+        Log('Environment for command: ' + str(env))
         return env
 
     def getOptionsForSgdbCli(self):
@@ -344,10 +342,9 @@ You might need to restart the editor for settings to be refreshed."""
     @staticmethod
     def setTimeout(timeout):
         Connection.timeout = timeout
-        logger.info('Connection timeout set to {0} seconds'.format(timeout))
+        Log('Connection timeout set to {0} seconds'.format(timeout))
 
     @staticmethod
     def setHistoryManager(manager):
         Connection.history = manager
-        size = manager.getMaxSize()
-        logger.info('Connection history size is {0}'.format(size))
+        Log('Connection history defined with max size {0}'.format(manager.getMaxSize()))
